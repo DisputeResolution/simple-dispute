@@ -32,10 +32,10 @@ contract StateMachine {
     }
 
     modifier timedTrasitions() {
-        if (stage == Stages.closed && now > closingTime + closingTimeLimit * 1 days) {
+        if (stage == Stages.closed && now > closingTime + closingTimeLimit) {
             stage = Stages.finished;
         }
-        if (stage == Stages.inArbitration && now > arbitrationTime + arbitrationTimeLimit * 1 days) {
+        if (stage == Stages.inArbitration && now > arbitrationTime + arbitrationTimeLimit) {
             stage = Stages.finished;
         }
         _;
