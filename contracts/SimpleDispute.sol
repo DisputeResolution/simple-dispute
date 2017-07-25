@@ -1,67 +1,24 @@
 pragma solidity ^0.4.11;
 
-contract SimpleDispute {
+import './StateMachine.sol';
+import './AccessControl.sol';
+
+contract SimpleDispute is StateMachine, AccessControl {
 
     struct Party {
         address id;
         uint collateral;
     }
 
+    function SimpleDispute(uint configClosingTime, uint configArbitrationTime) {
+        closingTimeLimit = configClosingTime;
+        arbitrationTimeLimit = configArbitrationTime;
+    }
+
     // Contract parties
     Party public arbitrator;
     Party public partyA;
     Party public partyB;
-
-    // Stage Timers
-    uint public closingTime;
-    uint public arbitrationTime;
-
-    // State management logic
-    enum Stages {
-        inactive,
-        active,
-        closed,
-        inArbitration,
-        finished
-    }
-
-
-    Stages public stage = Stages.inactive;
-
-    modifier atStage(Stages _stage) {
-        require(stage == _stage);
-        _;
-    }
-
-    modifier transitionNext() {
-        _;
-        nextStage();
-    }
-
-    modifier timedTrasitions() {
-        if (stage == Stages.closed && now > closingTime + 2 days) {
-            stage = Stages.finished;
-        }
-        if (stage == Stages.inArbitration && now > arbitrationTime + 2 days) {
-            stage = Stages.finished;
-        }
-        _;
-    }
-
-    function nextStage() internal {
-        stage = Stages(uint(stage) + 1);
-    }
-
-    // Modifier to restrict access to different users
-    modifier onlyArbitrator() {
-        require(msg.sender == arbitrator.id);
-        _;
-    }
-
-    modifier onlyParty {
-        require(msg.sender == partyA.id && msg.sender == partyB.id);
-        _;
-    }
 
     // Set up contract parties
     function setPartyA() payable {
