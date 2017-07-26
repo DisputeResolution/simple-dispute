@@ -1,72 +1,38 @@
 const SimpleDispute = artifacts.require("SimpleDispute");
 
 contract("SimpleDispute", function(accounts) {
-    it("activation: there's no initial arbitrator", function() {
-        return SimpleDispute.new().then(function(instance) {
-            return instance.arbitrator();
-        }).then(function(result) {
-            assert(result[0].toString() == '0x0000000000000000000000000000000000000000', result[0].toString());
-        });
-    });
+    const configClosingTime = 2;
+    const configArbitrationTime = 2;
+    const configExpectedCollateral = 2;
+    const arbitratorAddress = web3.eth.accounts[0];
+    const partyAddresses = [web3.eth.accounts[1], web3.eth.accounts[2]];
 
-    it("activation: should set an arbitrator", function() {
-        var dispute;
-        var arbitrator = accounts[0];
-
-        return SimpleDispute.new().then(function(instance) {
-            dispute = instance;
-            return instance.setArbitrator({from: arbitrator});
-        }).then(function() {
-            return dispute.arbitrator();
-        }).then(function(result) {
-            assert(result[0].toString() != '0x0000000000000000000000000000000000000000', result[0].toString());
-        });
-    });
-    it("activation: should throw without arbitrator present", function() {
-        return SimpleDispute.new().then(function(instance) {
-            return instance.activateContract.call();
-        }).then(function(result) {
-            assert(false, "It was supposed to throw without arbitrator present but didn't");
-        }).catch(function(error) {
-            assert(error.toString().indexOf("invalid opcode") != -1, error.toString())
-        });
-    });
-
-    it("activation: should activate with all parties present", function() {
+    it("should set up a contract as expected", function() {
         let dispute;
+        const secondsInDay = 86400;
+        return SimpleDispute.new(configClosingTime, configArbitrationTime, configExpectedCollateral,
+            arbitratorAddress, partyAddresses).then(function(instance) {
+                dispute = instance;
+                return dispute.expectedCollateral();
+        }).then(function(res) {
+            assert(Number(res) / 10e17 === configExpectedCollateral, 'Constructor collateral config and contract expected collateral should be equal.');
+            return dispute.closingTimeLimit();
+        }).then(function(res) {
+            assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor closing time limit and contract closing time limit should be equal.');
+            return dispute.arbitrationTimeLimit();
+        }).then(function(res) {
 
-        const partyA = accounts[0];
-        const partyB = accounts[1];
-        const arbitrator = accounts[2];
-
-        return SimpleDispute.new().then(function(instance) {
-            dispute = instance;
-            return dispute.setPartyA({from: partyA});
-        }).then(function() {
-            return dispute.setPartyB({from: partyB});
-        }).then(function() {
-            return dispute.setArbitrator({from: arbitrator});
-        }).then(function() {
-            return dispute.activateContract();
-        }).then(function() {
-            assert(true);
-        }).catch(function(error) {
-            assert(false, error.toString());
-        })
-    });
-
-    it("activation: should deposit collateral", function() {
-        let dispute;
-        let amount = 00000000001;
-        const arbitrator = accounts[2]
-        return SimpleDispute.new().then(function(instance) {
-            dispute = instance;
-            return dispute.setArbitrator({from: arbitrator, value: amount});
-        }).then(function() {
+            assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor arbitration time limit and contract arbitration time limit should be equal.');
             return dispute.arbitrator();
-        }).then(function(result) {
-            assert(result[1] == amount, result.toString());
+        }).then(function(res) {
+            assert(arbitratorAddress === res[0], 'Constructor arbitrator and contract arbitrator should be the same.');
+            for (let i = 0; i < partyAddresses.length; i++) {
+                (function() {
+                    return dispute.parties.call(i)
+                })().then(function(res) {
+                        assert.equal(res[0], partyAddresses[i], `Address number ${i} in test partyAddresses should be the same as the deployed contract.`);
+                    });
+            };
         });
     });
-
 });

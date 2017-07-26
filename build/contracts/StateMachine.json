@@ -1,0 +1,74 @@
+{
+  "contract_name": "StateMachine",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "closingTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "stage",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "closingTimeLimit",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "arbitrationTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "arbitrationTimeLimit",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052600480546000919060ff19166001835b0217905550341561002157fe5b5b610156806100316000396000f300606060405263ffffffff60e060020a6000350416634b6753bc811461004d578063c040e6b81461006f578063e76e7029146100a3578063fb44b58f146100c5578063fb6cbf36146100e7575bfe5b341561005557fe5b61005d610109565b60408051918252519081900360200190f35b341561007757fe5b61007f61010f565b6040518082600481111561008f57fe5b60ff16815260200191505060405180910390f35b34156100ab57fe5b61005d610118565b60408051918252519081900360200190f35b34156100cd57fe5b61005d61011e565b60408051918252519081900360200190f35b34156100ef57fe5b61005d610124565b60408051918252519081900360200190f35b60005481565b60045460ff1681565b60025481565b60015481565b600354815600a165627a7a72305820368612df583f36ea5ff8c5d754ba8190f3cda54a2dc559138af26bf7c2f44e080029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1501016284823
+}

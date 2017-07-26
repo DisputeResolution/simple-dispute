@@ -1,0 +1,48 @@
+{
+  "contract_name": "AccessControl",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "arbitrator",
+      "outputs": [
+        {
+          "name": "id",
+          "type": "address"
+        },
+        {
+          "name": "hasCollateral",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "parties",
+      "outputs": [
+        {
+          "name": "id",
+          "type": "address"
+        },
+        {
+          "name": "hasCollateral",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b5b61010a8061001c6000396000f300606060405263ffffffff60e060020a6000350416636cc6cde18114602a57806370651a1814605a575bfe5b3415603157fe5b6037608d565b60408051600160a060020a03909316835290151560208301528051918290030190f35b3415606157fe5b603760043560a8565b60408051600160a060020a03909316835290151560208301528051918290030190f35b600054600160a060020a0381169060a060020a900460ff1682565b600180548290811060b557fe5b906000526020600020900160005b5054600160a060020a038116915060a060020a900460ff16825600a165627a7a72305820e09ab5ab76cc66dcd5376176e3d3b85d97da27be0611cd76efea2fa765321db60029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1501016284820
+}

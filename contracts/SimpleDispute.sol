@@ -5,21 +5,14 @@ import './StateMachine.sol';
 import './AccessControl.sol';
 
 contract SimpleDispute is StateMachine, AccessControl, PullPayment {
-
-    // Contract structures
-    struct Party {
-        address id;
-        bool hasCollateral;
-    }
-
     uint public expectedCollateral;
-    bool public disputeResolved = false;
     address public disputingAddress;
-    // Contract parties
-    Party public arbitrator;
-    Party[] public parties;
+    bool public arbitrationOccurred;
+    bool public disputeResolved;
 
-    // Contract constructor
+    event LogActivation(bool activated);
+    event LogDebug(address from, uint amount);
+
     function SimpleDispute(
         uint configClosingTime,
         uint configArbitrationTime,
@@ -29,16 +22,16 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
     {
         closingTimeLimit = configClosingTime * 1 days;
         arbitrationTimeLimit = configArbitrationTime * 1 days;
-        expectedCollateral = configExpectedCollateral;
-        arbitrator = { id: arbitratorAddress, hasCollateral: false }
-        for (uint i = 0, i < partyAddresses.length; i++) {
-            parties.push({ id: partyAddresses[i], hasCollateral: false });
+        expectedCollateral = configExpectedCollateral * 1 ether;
+        arbitrator = Party({ id: arbitratorAddress, hasCollateral: false });
+        for (uint i = 0; i < partyAddresses.length; i++) {
+            parties.push(Party({ id: partyAddresses[i], hasCollateral: false }));
         }
     }
 
-    function sendCollateral() payable {
-        require(msg.value >= expectedCollateral);
-        for (uint i = 0, i < parties.length; i++) {
+    function depositCollateral() payable atStage(Stages.inactive) {
+        require(msg.value == expectedCollateral);
+        for (uint i = 0; i < parties.length; i++) {
             if (parties[i].id == msg.sender) {
                 parties[i].hasCollateral = true;
                 return;
@@ -49,38 +42,27 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
         }
     }
 
-    // Activate contract once all parties are present
-    function activateContract() atStage(Stages.inactive) {
-        // Check that all parties are present and have their collaterals.
+    function activateContract() onlyParty atStage(Stages.inactive) {
         for (uint i = 0; i < parties.length; i++) {
             require(parties[i].hasCollateral == true);
         }
-        // Check that the chosen arbitrator is present and has collateral.
         require(arbitrator.hasCollateral == true);
-        // Move the contract to the next stage.
+        LogActivation(true);
         nextStage();
     }
 
-    // Close contract
-    function closeContract() atStage(Stages.active) onlyParty {
-        nextStage();
+    function closeContract() onlyParty atStage(Stages.active) {
         closingTime = now;
+        nextStage();
     }
 
-    // Call arbitration if something went wrong with the contract.
     function callArbitration() onlyParty atStage(Stages.closed) {
         require(now <= closingTime + closingTimeLimit);
         disputingAddress = msg.sender;
+        arbitrationOccurred = true;
+        disputeResolved = false;
         arbitrationTime = now;
         nextStage();
-    }
-
-    function unlockCollateral() onlyParty atStage(Stages.finished){
-        require(disputeResolved == false);
-        for (uint i = 0; i < parties.length; i++) {
-            asyncSend(aparties[i].id, expectedCollateral);
-        }
-        asyncSend(arbitrator.id, expectedCollateral);
     }
 
     function awardParty (address winning_party)
@@ -90,18 +72,32 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
     {
         uint amount = expectedCollateral * parties.length;
         asyncSend(winning_party, amount);
-        partyA.collateral += amount;
+        asyncSend(arbitrator.id, expectedCollateral);
         disputeResolved = true;
         nextStage();
     }
 
-
     function claimArbitratorMoney()
         atStage(Stages.inArbitration)
+        onlyParty
     {
         if (now > arbitrationTime + arbitrationTimeLimit) {
             asyncSend(disputingAddress, expectedCollateral);
             nextStage();
+        }
+    }
+
+    function unlockCollateral()
+        onlyParty
+        timedTrasitions
+        atStage(Stages.finished)
+    {
+        require(disputeResolved != true);
+        for (uint i = 0; i < parties.length; i++) {
+            asyncSend(parties[i].id, expectedCollateral);
+        }
+        if (arbitrationOccurred != true) {
+            asyncSend(arbitrator.id, expectedCollateral);
         }
     }
 }
