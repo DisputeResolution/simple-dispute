@@ -1,4 +1,5 @@
 const SimpleDispute = artifacts.require("SimpleDispute");
+const testUtils = require('../utils/test-helpers.js');
 
 contract("SimpleDispute", function(accounts) {
     const configClosingTime = 2;
@@ -21,7 +22,6 @@ contract("SimpleDispute", function(accounts) {
             assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor closing time limit and contract closing time limit should be equal.');
             return dispute.arbitrationTimeLimit();
         }).then(function(res) {
-
             assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor arbitration time limit and contract arbitration time limit should be equal.');
             return dispute.arbitrator();
         }).then(function(res) {

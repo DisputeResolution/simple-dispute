@@ -18,7 +18,7 @@ contract AccessControl {
     }
 
     modifier onlyParty {
-        bool foundID = false;
+        bool foundID;
         for (uint i = 0; i < parties.length; i++) {
             if (parties[i].id == msg.sender) {
                 foundID = true;
