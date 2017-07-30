@@ -1,4 +1,4 @@
-function assertLogs(logs, eventListened, propertyName, expected, type, message) {
+const assertLogs = (logs, eventListened, propertyName, expected, type, message) => {
     for (let i = 0; i < logs.length; i++) {
         let log = logs[i];
 
@@ -16,8 +16,6 @@ function assertLogs(logs, eventListened, propertyName, expected, type, message) 
             return assert(log.args[propertyName] === expectedValue, message);
         }
     }
-}
+};
 
-module.exports = {
-    assertLogs: assertLogs
-}
+module.exports = assertLogs;

@@ -81,10 +81,9 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
         atStage(Stages.inArbitration)
         onlyParty
     {
-        if (now > arbitrationTime + arbitrationTimeLimit) {
-            asyncSend(disputingAddress, expectedCollateral);
-            nextStage();
-        }
+        require(now > arbitrationTime + arbitrationTimeLimit);
+        asyncSend(disputingAddress, expectedCollateral);
+        nextStage();
     }
 
     function unlockCollateral()

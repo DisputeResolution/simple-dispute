@@ -1,38 +1,37 @@
 const SimpleDispute = artifacts.require("SimpleDispute");
-const testUtils = require('../utils/test-helpers.js');
+const increaseTime = require('../utils/increaseTime');
+const expectThrow = require('../utils/expectThrow');
 
 contract("SimpleDispute", function(accounts) {
+    let dispute;
     const configClosingTime = 2;
     const configArbitrationTime = 2;
-    const configExpectedCollateral = 2;
-    const arbitratorAddress = web3.eth.accounts[0];
-    const partyAddresses = [web3.eth.accounts[1], web3.eth.accounts[2]];
+    const configExpectedCollateral = 1;
+    const arbitratorAddress = accounts[0];
+    const partyAddresses = [accounts[1], accounts[2]];
+    const unauthorizedAddress = accounts[3];
+    const amount = web3.toWei(1, 'ether');
+    const secondsInDay = 86400;
 
-    it("should set up a contract as expected", function() {
-        let dispute;
-        const secondsInDay = 86400;
-        return SimpleDispute.new(configClosingTime, configArbitrationTime, configExpectedCollateral,
-            arbitratorAddress, partyAddresses).then(function(instance) {
-                dispute = instance;
-                return dispute.expectedCollateral();
-        }).then(function(res) {
-            assert(Number(res) / 10e17 === configExpectedCollateral, 'Constructor collateral config and contract expected collateral should be equal.');
-            return dispute.closingTimeLimit();
-        }).then(function(res) {
-            assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor closing time limit and contract closing time limit should be equal.');
-            return dispute.arbitrationTimeLimit();
-        }).then(function(res) {
-            assert(Number(res) / secondsInDay === configArbitrationTime, 'Constructor arbitration time limit and contract arbitration time limit should be equal.');
-            return dispute.arbitrator();
-        }).then(function(res) {
-            assert(arbitratorAddress === res[0], 'Constructor arbitrator and contract arbitrator should be the same.');
-            for (let i = 0; i < partyAddresses.length; i++) {
-                (function() {
-                    return dispute.parties.call(i)
-                })().then(function(res) {
-                        assert.equal(res[0], partyAddresses[i], `Address number ${i} in test partyAddresses should be the same as the deployed contract.`);
-                    });
-            };
-        });
+    beforeEach(async () => {
+         dispute = await SimpleDispute.new(configClosingTime, configArbitrationTime,
+                                           configExpectedCollateral, arbitratorAddress, partyAddresses);
+         await dispute.depositCollateral({from: arbitratorAddress, value: amount});
+         await dispute.depositCollateral({from: partyAddresses[0], value: amount});
+         await dispute.depositCollateral({from: partyAddresses[1], value: amount});
+    });
+
+    it("should set up a contract as expected", async function() {
+        assert(await dispute.expectedCollateral() / 10e17 === configExpectedCollateral, 'Deployed contract and constructor expected collateral should be equal.');
+        assert(await dispute.closingTimeLimit() / secondsInDay === configArbitrationTime, 'Deployed contract and constructor closing time limit should be equal.');
+        assert(await dispute.arbitrationTimeLimit() / secondsInDay === configArbitrationTime, 'Deployed contract and constructor arbitration time limit should be equal.');
+
+        let arbitrator = await dispute.arbitrator()
+        assert(arbitrator[0] === arbitratorAddress, 'Deployed contract and constructor arbitrator should be equal.');
+
+        for (let i = 0; i < partyAddresses.length; i++) {
+            let party = await dispute.parties(i)
+            assert.equal(party[0], partyAddresses[i], `Deployed contract and constructor party ${i} should be equal.`);
+        };
     });
 });

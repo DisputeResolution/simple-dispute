@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/DisputeResolution/simple-dispute/issues"
   },
-  "homepage": "https://github.com/DisputeResolution/simple-dispute#readme"
+  "homepage": "https://github.com/DisputeResolution/simple-dispute#readme",
+  "dependencies": {
+    "zeppelin-solidity": "^1.2.0"
+  }
 }
