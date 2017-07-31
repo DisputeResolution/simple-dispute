@@ -72,10 +72,22 @@ contract("SimpleDispute", function(accounts) {
         expectThrow(dispute.activateContract({from: partyAddresses[0]}));
     });
 
-    it("It doesn't accept a call for arbitration after closingTimeLimit ends.", async () => {
+    it("shouldn't accept a call for arbitration after closingTimeLimit ends.", async () => {
         await dispute.activateContract({from: partyAddresses[0]});
         await dispute.closeContract({from: partyAddresses[0]});
         increaseTime(secondsInDay * (configClosingTime + 1));
         expectThrow(dispute.callArbitration({from: partyAddresses[0]}));
+    });
+
+    it("should only accept a party claiming the arbitrator money if the time limit passed.", async () => {
+        await dispute.activateContract({from: partyAddresses[0]});
+        await dispute.closeContract({from: partyAddresses[0]});
+        await dispute.callArbitration({from: partyAddresses[0]});
+        expectThrow(dispute.claimArbitratorMoney({from: partyAddresses[0]}));
+        assert.equal(await dispute.stage(), '3', 'After failed collecting arbitrator money the stage should still be 3');
+        increaseTime(secondsInDay * (configArbitrationTime + 1));
+        await dispute.claimArbitratorMoney({from: partyAddresses[0]});
+        assert.equal(await dispute.stage(), '4', 'After collecting arbitrator money the stage should be 4');
+        assert.isFalse(await dispute.disputeResolved(), 'After collecting arbitrator money the dispute should be flagged as unresolved.');
     });
 });
