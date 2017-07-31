@@ -1,0 +1,13 @@
+{
+    "package_name": "dispute-resolution",
+    "version": "0.0.1",
+    "description": "A simple contract for dispute resolution with one arbitrator.",
+    "authors": [
+        "Mauro Velazquez <maurovelazquez1@gmail.com>"
+    ],
+    "keywords": [
+        "ethereum",
+        "arbitrage"
+    ],
+    "license": "MIT"
+}

@@ -87,7 +87,7 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
     function unlockCollateral()
         onlyParty
         timedTrasitions
-        atStage(Stages.finished)
+        atStage(Stages.paying)
     {
         require(disputeResolved != true);
         for (uint i = 0; i < parties.length; i++) {
@@ -96,5 +96,6 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
         if (arbitrationOccurred != true) {
             asyncSend(arbitrator.id, expectedCollateral);
         }
+        nextStage();
     }
 }
