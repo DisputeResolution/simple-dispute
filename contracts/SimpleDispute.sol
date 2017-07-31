@@ -10,10 +10,6 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
     bool public arbitrationOccurred;
     bool public disputeResolved;
 
-    event LogActivation(bool activated, Stages stage);
-    event LogDebug(address from, uint amount);
-    event LogDeposit(address indexed from, bool deposited);
-
     function SimpleDispute(
         uint configClosingTime,
         uint configArbitrationTime,
@@ -34,10 +30,13 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
         require(msg.value == expectedCollateral);
         for (uint i = 0; i < parties.length; i++) {
             if (parties[i].id == msg.sender) {
+                require(parties[i].hasCollateral == false);
                 parties[i].hasCollateral = true;
+                return;
             }
         }
         if (arbitrator.id == msg.sender) {
+            require(arbitrator.hasCollateral == false);
             arbitrator.hasCollateral = true;
         }
     }
@@ -48,7 +47,6 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
         }
         require(arbitrator.hasCollateral == true);
         nextStage();
-        LogActivation(true, stage);
     }
 
     function closeContract() onlyParty atStage(Stages.active) {

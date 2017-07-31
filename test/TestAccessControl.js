@@ -20,7 +20,7 @@ contract("AccessControl", function(accounts) {
          await dispute.depositCollateral({from: partyAddresses[1], value: amount});
     });
 
-    it("should only allow a party to activate the contract.", async function() {
+    it("should only allow a party to activate the contract.", async () => {
         assert.equal(await dispute.stage(), '0', 'Before activation the stage should be 0.');
         expectThrow(dispute.activateContract({from: unauthorizedAddress}));
         assert.equal(await dispute.stage(), '0', 'After failed activation the stage should still be 0.');
@@ -35,7 +35,7 @@ contract("AccessControl", function(accounts) {
         assert.equal(await dispute.stage(), '2', 'After successful contract closure the stage should be 2');
     });
 
-    it("should only allow a party to call for arbitration.", async function() {
+    it("should only allow a party to call for arbitration.", async () => {
         await dispute.activateContract({from: partyAddresses[0]});
         await dispute.closeContract({from: partyAddresses[0]});
         expectThrow(dispute.callArbitration({from: unauthorizedAddress}));
@@ -43,7 +43,7 @@ contract("AccessControl", function(accounts) {
         assert.equal(await dispute.stage(), '3', 'After successful call for arbitration the stage should be 3');
     });
 
-    it("should only allow the arbitrator to award a party with collateral.", async function() {
+    it("should only allow the arbitrator to award a party with collateral.", async () => {
         await dispute.activateContract({from: partyAddresses[0]});
         await dispute.closeContract({from: partyAddresses[0]});
         await dispute.callArbitration({from: partyAddresses[0]});
@@ -52,7 +52,7 @@ contract("AccessControl", function(accounts) {
         assert.equal(await dispute.stage(), '4', 'After awarding collateral the stage should be 4');
     });
 
-    it("should only allow a party to claim an uncooperating arbitrator's money.", async function() {
+    it("should only allow a party to claim an uncooperating arbitrator's money.", async () => {
         await dispute.activateContract({from: partyAddresses[0]});
         await dispute.closeContract({from: partyAddresses[0]});
         await  dispute.callArbitration({from: partyAddresses[0]});
