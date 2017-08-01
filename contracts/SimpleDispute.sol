@@ -19,7 +19,7 @@ contract SimpleDispute is StateMachine, AccessControl, PullPayment {
     {
         closingTimeLimit = configClosingTime * 1 days;
         arbitrationTimeLimit = configArbitrationTime * 1 days;
-        expectedCollateral = configExpectedCollateral * 1 ether;
+        expectedCollateral = configExpectedCollateral;
         arbitrator = Party({ id: arbitratorAddress, hasCollateral: false });
         for (uint i = 0; i < partyAddresses.length; i++) {
             parties.push(Party({ id: partyAddresses[i], hasCollateral: false }));

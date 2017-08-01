@@ -6,11 +6,11 @@ contract("AccessControl", function(accounts) {
     let dispute;
     const configClosingTime = 2;
     const configArbitrationTime = 2;
-    const configExpectedCollateral = 1;
+    const configExpectedCollateral = web3.toWei(1, 'ether');
     const arbitratorAddress = accounts[0];
     const partyAddresses = [accounts[1], accounts[2]];
     const unauthorizedAddress = accounts[3];
-    const amount = web3.toWei(1, 'ether');
+    const amount = configExpectedCollateral;
 
     beforeEach(async () => {
          dispute = await SimpleDispute.new(configClosingTime, configArbitrationTime,

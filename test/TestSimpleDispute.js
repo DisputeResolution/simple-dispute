@@ -6,11 +6,11 @@ contract("SimpleDispute", function(accounts) {
     let dispute;
     const configClosingTime = 2;
     const configArbitrationTime = 2;
-    const configExpectedCollateral = 2;
+    const configExpectedCollateral = web3.toWei(2, 'ether');
     const arbitratorAddress = accounts[0];
     const partyAddresses = [accounts[1], accounts[2]];
     const unauthorizedAddress = accounts[3];
-    const amount = web3.toWei(2, 'ether');
+    const amount = configExpectedCollateral;
     const secondsInDay = 86400;
 
     beforeEach(async () => {
@@ -21,8 +21,17 @@ contract("SimpleDispute", function(accounts) {
          await dispute.depositCollateral({from: partyAddresses[1], value: amount});
     });
 
+    it("should accept less than 1 ETH as expectedCollateral value", async () => {
+        dispute = await SimpleDispute.new(configClosingTime, configArbitrationTime,
+                                          web3.toWei(100, 'finney'), arbitratorAddress, partyAddresses);
+        await dispute.depositCollateral({from: arbitratorAddress, value: web3.toWei(100, 'finney')});
+        await dispute.depositCollateral({from: partyAddresses[0], value: web3.toWei(100, 'finney')});
+        await dispute.depositCollateral({from: partyAddresses[1], value: web3.toWei(100, 'finney')});
+        await dispute.activateContract({from: partyAddresses[1]});
+    });
+
     it("should set up a contract as expected", async () => {
-        assert(await dispute.expectedCollateral() / 10e17 === configExpectedCollateral, 'Deployed contract and constructor expected collateral should be equal.');
+        assert(await dispute.expectedCollateral() == configExpectedCollateral, 'Deployed contract and constructor expected collateral should be equal.');
         assert(await dispute.closingTimeLimit() / secondsInDay === configArbitrationTime, 'Deployed contract and constructor closing time limit should be equal.');
         assert(await dispute.arbitrationTimeLimit() / secondsInDay === configArbitrationTime, 'Deployed contract and constructor arbitration time limit should be equal.');
         let arbitrator = await dispute.arbitrator()
